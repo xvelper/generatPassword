@@ -24,14 +24,14 @@ def random_symbols():
         random.randint(0, len(ARRAY_SYMBOLS) - 1)
     ]
 
+
+print(f'Приложение версии 0.0.1')
 print(f'Кол-во доступных символов: {len(ARRAY_SYMBOLS)}')
 print(f'Кол-во возможных вариантов: {count_variant}')
 print(ARRAY_SYMBOLS[random.randint(0, len(ARRAY_SYMBOLS) - 1)])
 
-
 # Массив  символов
 password_array = [i for i in range(0, count_symbols)]
-
 
 password = ''
 
