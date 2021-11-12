@@ -1,65 +1,89 @@
-import random
 import datetime
 import os
+from Password import Password
+from rich import print, box
+from rich.layout import Layout
+from rich.panel import Panel
+from rich.console import Console, Group
+from rich.text import Text
+from rich.table import Table
 
-# Набор доступных символов
-ARRAY_SYMBOLS = [
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    'a', 'b', 'c',
-    'A', 'B', 'C',
-    '!', '@']
 
-# Получаем количество символов в пароле.
-CONST_COUNT_SYMBOLS = 4
-custom_count_symbols = int(input('Введите кол-во символов в пароле: '))
-if custom_count_symbols > 0:
-    count_symbols = custom_count_symbols
+def file_name():
+    text_datetime = f'{datetime.datetime.now()}'
+    symbol_replace = ['!', '@', '#', '$', '%', '&', '*', '?', '/', '.', ',', '\\', ';', ':', '|', '_', '-', ' ']
+    fn = ''
+    for s in text_datetime:
+        is_write = True
+        for sr in symbol_replace:
+            if s == sr:
+                fn += '_'
+                is_write = False
+        if is_write:
+            fn += s
+    return fn
+
+password = Password()
+
+count_symbols = input('ведите количество символов в пароле:')
+pin_code = input("Введите PIN CODE для шифрования пароля (4 цифры): ")
+
+if not pin_code.isdigit():
+    pin_code = None
+
+if count_symbols.isdigit():
+    password.generation(int(count_symbols), pin_code)
 else:
-    count_symbols = CONST_COUNT_SYMBOLS
-
-count_variant = len(ARRAY_SYMBOLS) ** count_symbols
+    password.generation(None, None)
 
 
-# Функция случайных символом
-def random_symbols():
-    return ARRAY_SYMBOLS[
-        random.randint(0, len(ARRAY_SYMBOLS) - 1)
-    ]
+# print(f'Приложение версии 0.0.4')
+# print(f'Количество доступных символов: {len(password.get_array_symbols)}')
+# print(f'Количество возможных вариантов: {password.count_variant}')
+
+# print(f'ваш подобраный пароль: {password.password}')
+
+console = Console()
+layout = Layout(name="info")
+
+table_info =Table.grid(padding=1)
+
+print_count_array_symbols = Text.from_markup(f'{len(password.get_array_symbols())}', style="bold red")
+table_info.add_row(f'Количество доступных символов:', print_count_array_symbols)
+
+print_count_variant = Text.from_markup(f'{password.count_variant}', style="bold yellow")
+table_info.add_row(f'Количество возможных вариантов:', print_count_variant)
+
+print_password = Text.from_markup(f'{password.password}', style="bold blue")
+table_info.add_row(f'Сгенерированный пароль:', print_password)
+
+print_pin_code = Text.from_markup(f'{password.pin_code}', style="bold blue")
+table_info.add_row(f'Пин код:', print_pin_code)
+
+print_check_summa = Text.from_markup(f'{password.check_summa}', style="bold blue")
+table_info.add_row(f'Ключ пароля:')
 
 
-print(f'Приложение версии 0.0.1')
-print(f'Кол-во доступных символов: {len(ARRAY_SYMBOLS)}')
-print(f'Кол-во возможных вариантов: {count_variant}')
-print(ARRAY_SYMBOLS[random.randint(0, len(ARRAY_SYMBOLS) - 1)])
 
-# Массив  символов
-password_array = [i for i in range(0, count_symbols)]
+    
+layout.update(
+    Panel(
+        Group(table_info, print_check_summa),
+        box=box.ROUNDED,
+        title="Информация",
+        subtitle="Приложение версии 0.0.6",
+        border_style="blue",
+    )
+)
 
-password = ''
-
-for i in password_array:
-    password = password + f'{random_symbols()}'
-
-print(f'Сгенерированный пароль: {password}')
-
-text_datetime = f'{datetime.datetime.now()}'
-symbol_replace = ['.', ':', '-', ' ']
-
-file_name = ''
-for s in text_datetime:
-    is_write = True
-    for sr in symbol_replace:
-        if s == sr:
-            file_name += '_'
-            is_write = False
-    if is_write:
-        file_name += s
+console.print(layout)
 
 
 if not os.path.exists('password'):
     os.mkdir('password')
 
-with open(f'password/{file_name}.txt', 'a') as password_string:
-    password_string.write('{}\n'.format(f'{password}'))
+# Запись пароля в файл.
+with open(f'password/{file_name()}.txt', 'a') as password_string:
+    password_string.write('{}\n'.format(f'{password.check_summa}'))
 
-input()
+input('нажмите Enter, чтобы выйти.')
